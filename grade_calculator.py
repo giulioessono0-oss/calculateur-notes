@@ -38,7 +38,6 @@ st.set_page_config(
     page_title="Bloc Grade Calculator",
     page_icon="🎓",
     layout="centered",
-    set_page_config()=="blue"
 )
 
 # ── Header ─────────────────────────────────────────────────────────────────────
