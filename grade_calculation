@@ -1,4 +1,4 @@
-# translations.py – Syfer Grade Calculator
+#grade_calculation.py – Syfer Grade Calculator
 # Supported languages: French (fr), English (en), Italian (it)
 
 TRANSLATIONS = {
