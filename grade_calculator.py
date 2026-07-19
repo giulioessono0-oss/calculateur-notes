@@ -42,7 +42,7 @@ st.set_page_config(
 
 # ── Header ─────────────────────────────────────────────────────────────────────
 st.title("🎓 Bloc Grade Calculator")
-st.caption("Calculates your weighted average across {subject} subjects.")
+st.caption("Calculates your weighted average across (subject) subjects.")
 st.divider()
 
 # ── Student name ───────────────────────────────────────────────────────────────
