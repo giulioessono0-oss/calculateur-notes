@@ -35,14 +35,14 @@ def grade_info(average: float) -> tuple[str, str]:
 
 # ── Page config ────────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="Syfer Grade Calculator",
+    page_title="Bloc Grade Calculator",
     page_icon="🎓",
     layout="centered",
 )
 
 # ── Header ─────────────────────────────────────────────────────────────────────
-st.title("🎓 Syfer Grade Calculator")
-st.caption("Calculates your weighted average across 4 science subjects.")
+st.title("🎓 Bloc Grade Calculator")
+st.caption("Calculates your weighted average across {subject} subjects.")
 st.divider()
 
 # ── Student name ───────────────────────────────────────────────────────────────
