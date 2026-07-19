@@ -1,118 +1,130 @@
-
-"""
-Syfer Grade Calculator — Streamlit Web App
-Weighted average for: Math (×5), Physics (×3), Computer Science (×3), A-Math (×3)
-Total coefficient = 14
-"""
-
 import streamlit as st
+import pandas as pd
+from translations import TRANSLATIONS
 
-# ── Constants ──────────────────────────────────────────────────────────────────
-SUBJECTS = {
-    "Math": 5,
-    "Physics": 3,
-    "Computer Science": 3,
-    "A-Math": 3,
-}
-TOTAL_COEFF = sum(SUBJECTS.values())  # 14
-MAX_MARK = 20.0
-
-
-def grade_info(average: float) -> tuple[str, str]:
-    """Return (label, streamlit message type) based on average."""
-    if average >= 16:
-        return "🏆 Excellent!", "success"
-    elif average >= 14:
-        return "✅ Good pass!", "success"
-    elif average >= 10:
-        return "⚠️ Borderline pass", "warning"
-    else:
-        return "❌ Not yet — keep going!", "error"
-
-
-# ── Page config ────────────────────────────────────────────────────────────────
+# ── Page config (must be first Streamlit call) ────────────────────────────────
 st.set_page_config(
-    page_title="Syfer Grade Calculator",
-    page_icon="🎓",
+    page_title="Syfer – Grade Calculator",
+    page_icon="📊",
     layout="centered",
 )
 
-# ── Header ─────────────────────────────────────────────────────────────────────
-st.title("🎓 Syfer Grade Calculator")
-st.caption("Calculates your weighted average across 4 science subjects.")
+# ── Language selector ─────────────────────────────────────────────────────────
+LANG_OPTIONS = {
+    "Français 🇫🇷": "fr",
+    "English 🇬🇧":  "en",
+    "Italiano 🇮🇹": "it",
+}
+
+lang_label = st.selectbox(
+    "🌐 Langue / Language / Lingua",
+    options=list(LANG_OPTIONS.keys()),
+    key="lang_selector",
+)
+lang = LANG_OPTIONS[lang_label]
+T = TRANSLATIONS[lang]
+
+# ── Title ─────────────────────────────────────────────────────────────────────
+st.title(T["app_title"])
+st.markdown(T["subtitle"])
+
+# ── Student name ──────────────────────────────────────────────────────────────
+name = st.text_input(T["name_label"], placeholder=T["name_placeholder"], key="student_name")
+
 st.divider()
 
-# ── Student name ───────────────────────────────────────────────────────────────
-name = st.text_input("Your name", placeholder="Enter your name…")
+# ── Subject definitions (from translation file) ───────────────────────────────
+subjects   = T["subjects"]                          # list of (name, coef)
+total_coef = sum(coef for _, coef in subjects)      # always 26
+max_total  = 20.0 * total_coef                      # 520.0
 
-st.subheader("Enter your marks (out of 20)")
+# ── Score inputs ──────────────────────────────────────────────────────────────
+# BUG FIX: keys are index-based ("score_0" … "score_7") so scores are preserved
+# when the user switches language — the subject names change but the values stay.
+st.subheader(T["section_marks"])
 
-# ── Mark sliders ───────────────────────────────────────────────────────────────
+scores: dict[str, float] = {}
+
 cols = st.columns(2)
-marks: dict[str, float] = {}
-
-for i, (subject, coeff) in enumerate(SUBJECTS.items()):
+for i, (subject, coef) in enumerate(subjects):
     with cols[i % 2]:
-        marks[subject] = st.slider(
-            f"{subject}  _(coefficient ×{coeff})_",
+        score = st.number_input(
+            f"{subject}  *({T['coef_label']} {coef})*",
             min_value=0.0,
-            max_value=MAX_MARK,
-            value=10.0,
+            max_value=20.0,
+            value=0.0,
             step=0.5,
-            key=subject,
+            key=f"score_{i}",          # ← stable key, not tied to language
         )
+        scores[subject] = score
 
 st.divider()
 
-# ── Calculate button ───────────────────────────────────────────────────────────
-if st.button("Calculate my average", type="primary", use_container_width=True):
-    weighted_total = sum(marks[s] * SUBJECTS[s] for s in SUBJECTS)
-    average = weighted_total / TOTAL_COEFF
-    label, msg_type = grade_info(average)
-    display_name = name.strip() if name.strip() else "Student"
+# ── Calculate ─────────────────────────────────────────────────────────────────
+if st.button(T["btn_calculate"], use_container_width=True, type="primary"):
 
-    st.subheader(f"Results for {display_name}")
+    if not name.strip():
+        st.warning(T["warn_name"])
+    else:
+        weighted_scores = {subj: scores[subj] * coef for subj, coef in subjects}
+        total   = sum(weighted_scores.values())
+        average = total / total_coef
 
-    # KPI metrics
-    m1, m2, m3 = st.columns(3)
-    m1.metric("Weighted Total", f"{weighted_total:.1f} / {TOTAL_COEFF * MAX_MARK:.0f}")
-    m2.metric("Average", f"{average:.2f} / {MAX_MARK:.0f}")
-    m3.metric("Grade", label)
+        st.subheader(f"{T['results_for']} **{name.strip()}**")
 
-    # Breakdown table
-    st.subheader("Breakdown")
-    st.table(
-        [
-            {
-                "Subject": subject,
-                "Mark (/20)": marks[subject],
-                "Coefficient": f"×{coeff}",
-                "Weighted score": marks[subject] * coeff,
-            }
-            for subject, coeff in SUBJECTS.items()
-        ]
-    )
+        # ── Breakdown table (dataframe avoids markdown pipe/alignment bugs) ───
+        st.markdown(T["breakdown_title"])
 
-    # Progress bar
-    st.subheader("Overall progress")
-    st.progress(average / MAX_MARK, text=f"{average:.2f} / 20")
+        df = pd.DataFrame(
+            [
+                {
+                    T["col_subject"]:  subj,
+                    T["col_mark"]:     f"{scores[subj]:.1f}",
+                    T["col_coef"]:     coef,
+                    T["col_weighted"]: f"{weighted_scores[subj]:.1f}",
+                }
+                for subj, coef in subjects
+            ]
+        )
+        st.dataframe(df, use_container_width=True, hide_index=True)
 
-    # Feedback message
-    feedback = {
-        "success": (
-            f"🏆 Outstanding, {display_name}! You're at the top of your class."
-            if average >= 16
-            else f"✅ Well done, {display_name}! You've passed with a solid result."
-        ),
-        "warning": f"⚠️ You're passing, {display_name}, but there's room to improve!",
-        "error": f"❌ Not there yet, {display_name}. Don't give up — you can do better!",
-    }
-    getattr(st, msg_type)(feedback.get(msg_type, label))
+        st.divider()
 
-    st.caption(
-        "Adjust any slider above and click **Calculate** again to see how your score changes."
-    )
+        # ── Summary metrics ───────────────────────────────────────────────────
+        m1, m2, m3 = st.columns(3)
+        m1.metric(T["metric_total"],   f"{total:.1f} / {int(max_total)}")
+        m2.metric(T["metric_average"], f"{average:.2f}")
+        m3.metric(T["metric_coef"],    total_coef)
 
-# ── Footer ─────────────────────────────────────────────────────────────────────
-st.divider()
-st.caption("Built with Streamlit · Syfer Grade Calculator")
+        # ── Progress bar ──────────────────────────────────────────────────────
+        # BUG FIX: clamp to [0.0, 1.0] so st.progress never raises ValueError
+        pct = max(0.0, min(1.0, total / max_total))
+        st.progress(pct, text=f"{T['progress_label']}: {pct * 100:.1f}%")
+
+        st.divider()
+
+        # ── Pass / fail verdict ───────────────────────────────────────────────
+        # BUG FIX: threshold was 140 (from buggy original with only 4 subjects).
+        # Correct threshold = average of 10/20 × total_coef = 10 × 26 = 260.
+        PASS_THRESHOLD = 10.0 * total_coef   # 260 — scales automatically if coefs change
+
+        fmt = dict(name=name.strip(), total=f"{total:.1f}", avg=f"{average:.2f}")
+        if total >= PASS_THRESHOLD:
+            st.success(T["pass_msg"].format(**fmt))
+        else:
+            st.error(T["fail_msg"].format(**fmt))
+
+        # ── Per-subject performance ───────────────────────────────────────────
+        st.markdown(T["perf_title"])
+        for subj, _ in subjects:
+            mark  = scores[subj]
+            # BUG FIX: clamp progress value so 0-input never produces a float
+            # outside [0.0, 1.0] due to floating-point drift
+            pct_s = max(0.0, min(1.0, mark / 20.0))
+            if mark >= 14:
+                label = T["perf_good"]
+            elif mark >= 10:
+                label = T["perf_avg"]
+            else:
+                label = T["perf_bad"]
+            st.progress(pct_s, text=f"{subj}: {mark:.1f}/20  {label}")
