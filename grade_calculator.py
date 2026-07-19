@@ -1,8 +1,8 @@
 
 """
-Syfer Grade Calculator — Streamlit Web App
-Weighted average for: Math (×5), Physics (×3), Computer Science (×3), A-Math (×3)
-Total coefficient = 14
+Bloc Grade Calculator — Streamlit Web App
+Weighted average for: Math (×5), Physics (×3), Computer Science (×3), A-Math (×3),Boilogy (*3),Geography (*3),Economics (*3)
+Total coefficient = 23
 """
 
 import streamlit as st
@@ -13,6 +13,9 @@ SUBJECTS = {
     "Physics": 3,
     "Computer Science": 3,
     "A-Math": 3,
+    "Boilogy": 3,
+    "Geography": 3,
+    "Economics": 3,
 }
 TOTAL_COEFF = sum(SUBJECTS.values())  # 14
 MAX_MARK = 20.0
