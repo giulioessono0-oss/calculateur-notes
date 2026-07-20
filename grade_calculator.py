@@ -118,4 +118,4 @@ if st.button("Calculate my average", type="primary", use_container_width=True):
 
 # ── Footer ─────────────────────────────────────────────────────────────────────
 st.divider()
-st.caption("Built with Streamlit · Syfer Grade Calculator")
+st.caption("Built by Giulio 2K · Syfer Grade Calculator")
