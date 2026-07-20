@@ -1,8 +1,8 @@
 
 """
 Bloc Grade Calculator — Streamlit Web App
-Weighted average for: Math (×5), Physics (×3), Computer Science (×3), A-Math (×3),Boilogy (*3),Geography (*3),Economics (*3)
-Total coefficient = 23
+Weighted average for: Math (×5), Physics (×3), Computer Science (×3), A-Math (×3),Boilogy (*3),Geography (*3),Economics (*3), French (*5), English (*5)
+Total coefficient = 33
 """
 
 
