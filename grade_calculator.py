@@ -16,6 +16,8 @@ SUBJECTS = {
     "Boilogy": 3,
     "Geography": 3,
     "Economics": 3,
+    "French": 5,
+    "English": 5,
 }
 TOTAL_COEFF = sum(SUBJECTS.values())  # 14
 MAX_MARK = 20.0
