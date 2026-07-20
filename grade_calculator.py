@@ -28,7 +28,7 @@ def grade_info(average: float) -> tuple[str, str]:
     elif average >= 14:
         return "✅ Good pass!", "success"
     elif average >= 10:
-        return "⚠️ Borderline pass", "warning"
+        return "⚠️ Atleast you pass", "progress"
     else:
         return "❌ Not yet — keep going!", "error"
 
