@@ -8,8 +8,8 @@ Total coefficient = 23
 
 import streamlit as st
 #class
-st.title("Choose a class: ")
-if st.tltle==F5
+st.write("Choose a class: ")
+if st.write==F5
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 SUBJECTS = {
