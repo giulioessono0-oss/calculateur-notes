@@ -5,7 +5,11 @@ Weighted average for: Math (×5), Physics (×3), Computer Science (×3), A-Math 
 Total coefficient = 23
 """
 
+
 import streamlit as st
+#class
+st.title("Choose a class: ")
+
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 SUBJECTS = {
